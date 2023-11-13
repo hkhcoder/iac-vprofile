@@ -2,10 +2,10 @@
 
 ## Maintain vpc & eks with terraform for vprofile project
 
-##Tools required
+## Tools required
 Terraform version 1.6.3
 
-###Steps
+### Steps
 terraform init
 terraform fmt -check
 terraform validate
