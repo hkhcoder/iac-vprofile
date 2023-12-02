@@ -27,7 +27,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "gitopsterrastate"
+    bucket = "vprofileactions534679724687"
     key    = "terraform.tfstate"
     region = "us-east-2"
   }
