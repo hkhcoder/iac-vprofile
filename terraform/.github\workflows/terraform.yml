@@ -21,7 +21,7 @@ env:
   AWS_REGION: us-east-2
   EKS_CLUSTER: gitactions-eks
 
-jobs:
+  jobs:
     terraform:
       name: "Apply terraform code changes"
       runs-on: ubuntu-latest
