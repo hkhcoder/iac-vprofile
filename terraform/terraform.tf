@@ -24,13 +24,17 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.23.0"
     }
+    
+  }
+  backend "s3" {
+    bucket         = "alora-statefile"
+    key            = "global/mystatefile/terraform.tfstate"
+    dynamodb_table = "state-lock"
+    region         = "eu-west-3"
+    encrypt        = true
   }
 
-  backend "s3" {
-    bucket = "gitopsterrastate"
-    key    = "terraform.tfstate"
-    region = "us-east-2"
-  }
+  
 
   required_version = "~> 1.6.3"
 }
