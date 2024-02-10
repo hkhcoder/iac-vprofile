@@ -1,7 +1,6 @@
 name: "Vprofile IAC"
 on:
-  workflow_dispatch
-push:
+  push:
     branches:
       - main
       - stage
@@ -60,5 +59,4 @@ jobs:
        - name: Terraform plan status
          if: steps.plan.outcome == 'failure' 
          run: exit 1     
-###
-###
+
