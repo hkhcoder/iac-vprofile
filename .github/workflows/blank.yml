@@ -6,7 +6,7 @@ push:
       - main
       - stage
     paths:  
-       terraform/**
+      - terraform/**
   pull_request:
     branches:
       - main
