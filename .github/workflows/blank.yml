@@ -1,7 +1,7 @@
 name: "Vprofile IAC"
 on:
   workflow_dispatch
-  push:
+push:
     branches:
       - main
       - stage
