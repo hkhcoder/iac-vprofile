@@ -1,0 +1,65 @@
+name: "Vprofile IAC"
+#define when should trriger workflow
+on: 
+  push:
+    branches:
+      - main
+      - stage 
+    paths: 
+      - terraform/**
+  pull_request:
+    branches:
+      - main 
+    paths: 
+      - terraform/**
+
+env:
+  #credentials for deployment to aws 
+  AWS_ACCES_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  
+  #s3 bucket for the terraform state
+  BUCKET_TF_STATE: ${{ secret.BUCKET_TF_STATE}}
+
+  AWS-REGION: us-east-2
+  EKS_CLUSTER: vprofile_eks 
+
+
+jobs:
+  terraform: "apply terraform code changes"
+  runs_on: ubuntu-latest
+  defaults: 
+    run:
+      shell: bash 
+      working-directory: ./terraform 
+  
+  steps:
+    - name: checkout source code 
+      uses: actions/checkout@v4
+
+    - name: setup terraform 
+      uses: hashicorp/setup-terraform@v2 
+      with: 
+        terraform_version: 1.6.3
+    
+    - name: terraform init 
+      id: init 
+      run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
+
+    - name: terraform format 
+      id: fmt 
+      run: terraform fmt -check 
+
+    - name: terraform validate 
+      id: validate 
+      run: terraform validate 
+
+    - name: terraform plan 
+      id: plan 
+      run : terraform plan -input=false -out planfile 
+      continue-on-error: true 
+
+    - name: terraform plan status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1 
+      
