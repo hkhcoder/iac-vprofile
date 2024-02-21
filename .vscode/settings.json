@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "file:///o%3A/gitrepos/iac-vprofile/.github/workflows/terraform.yml"
+    }
+}
