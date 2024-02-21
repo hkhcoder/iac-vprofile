@@ -50,7 +50,7 @@ jobs:
       id: fmt 
       run: terraform fmt -check 
 
-    - name: terraform validate 
+    - name: terraform validate s
       id: validate 
       run: terraform validate 
 
