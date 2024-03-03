@@ -1,0 +1,88 @@
+name: vprofile actions
+on: workflow_dispatch
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: vprofileapp
+  EKS_CLUSTER: vprofile-eks
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Maven test
+        run: mvn test
+
+      - name: Checkstyle
+        run: mvn checkstyle:checkstyle
+
+      # Setup java 11 to be default (sonar-scanner requirement as of 5.x)
+      - name: Set Java 11
+        uses: actions/setup-java@v3
+        with:
+         distribution: 'temurin' # See 'Supported distributions' for available options
+         java-version: '11'
+
+      # Setup sonar-scanner
+      - name: Setup SonarQube
+        uses: warchant/setup-sonar-scanner@v7
+
+
+       
+  BUILD_AND_PUBLISH:   
+    needs: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Build & Upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+         access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         registry: ${{ secrets.REGISTRY }}
+         repo: ${{ env.ECR_REPOSITORY }}
+         region: ${{ env.AWS_REGION }}
+         tags: latest,${{ github.run_number }}
+         daemon_off: false
+         dockerfile: ./Dockerfile
+         context: ./
+
+  DeployToEKS:
+    needs: BUILD_AND_PUBLISH
+    runs-on: ubuntu-latest
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Kube config file
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER }}
+
+      - name: Print config file
+        run: cat ~/.kube/config
+
+      - name: Login to ECR
+        run: kubectl create secret docker-registry regcred --docker-server=${{ secrets.REGISTRY }} --docker-username=AWS  --docker-password=$(aws ecr get-login-password) 
+
+      - name: Deploy Helm
+        uses: bitovi/github-actions-deploy-eks-helm@v1.2.8
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          cluster-name: ${{ env.EKS_CLUSTER }}
+          #config-files: .github/values/dev.yaml
+          chart-path: helm/vprofilecharts
+          namespace: default
+          values: appimage=${{ secrets.REGISTRY }}/${{ env.ECR_REPOSITORY }},apptag=${{ github.run_number }}
+          name: vprofile-stack    
