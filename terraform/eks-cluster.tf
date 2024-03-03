@@ -16,7 +16,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     one = {
-      name = "node-group-1"
+      name = "k8node-group-1"
 
       instance_types = ["t3.small"]
 
@@ -26,7 +26,7 @@ module "eks" {
     }
 
     two = {
-      name = "node-group-2"
+      name = "k8node-group-2"
 
       instance_types = ["t3.small"]
 
