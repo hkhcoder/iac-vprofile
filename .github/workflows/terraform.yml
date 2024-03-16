@@ -1,5 +1,18 @@
 name: "Vprofile IAC"
-on: workflow_dispatch
+# on:
+#   push:
+#     branches:
+#       - main
+#       - stage
+#     paths:
+#       - terraform/**
+#   pull_request:
+#     branches:
+#       - main
+#     paths:
+#       - terraform/**
+
+on: workflow_dispatch # only run the workflow when we manually trigger it. Later change
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -31,6 +44,52 @@ jobs:
         id: init
         run: terraform init -backend-config="bucket=$BUCKET_TF_STAGE"
 
-      - name: Terraform destroy
-        id: destroy
-        run: terraform destroy -auto-approve -input=false -parallelism=1
+      - name: Terraform format
+        id: fmt
+        run: terraform fmt -check
+        # if the format of the code is not correct, it will return non-zero exit code and will fail the workflow
+        # then someone needs to make the correct format of the code, then again, commit the code.
+
+      - name: Terraform validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform plan -no-color -input -out planfile
+        # -no-color: save some GPU
+        # -input: not passing any input
+        # -out planfile: avoid the parralle execution Terraform. This is to avoid bug in github action
+        continue-on-error: true
+        # we have a different way of failing this. Because we cannot really rely on this.
+
+      - name: Terraform plan status
+        if: steps.plan.outcome == 'failure'
+        # if that variable value is failure, then we will execute command exit one, or anything that you can give, anything apart from zero
+        # When exit gets executed, it is going to kill that container and the workflow fail.
+        run: exit 1
+
+# new
+      - name: Terraform apply
+        id: apple
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        # if gitHub.ref is equal to main branch AND if there is a push github.event_name equal to push
+        run: terraform apply -auto-approve -input=false -parallelism=1 planfile
+        # -parallelism=1 to avoid bug in github actions
+
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Kube config file
+        id: getconfig
+        if: steps.apple.outcome == 'success'
+        run: aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER }}
+
+      - name: Install Ingress controller
+        if: steps.apple.outcome == 'success' && steps.getconfig.outcome == 'success'
+        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.3/deploy/static/provider/aws/deploy.yaml
