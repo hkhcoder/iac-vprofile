@@ -1,18 +1,18 @@
 name: "Vprofile IAC"
-# on:
-#   push:
-#     branches:
-#       - main
-#       - stage
-#     paths:
-#       - terraform/**
-#   pull_request:
-#     branches:
-#       - main
-#     paths:
-#       - terraform/**
+on:
+  push:
+    branches:
+      - main
+      - stage
+    paths:
+      - terraform/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - terraform/**
 
-on: workflow_dispatch # only run the workflow when we manually trigger it. Later change
+# on: workflow_dispatch # only run the workflow when we manually trigger it. Later change
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
