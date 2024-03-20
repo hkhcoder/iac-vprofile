@@ -1,0 +1,9 @@
+name: Manual Trigger Test
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "The workflow_dispatch event works as it should, the problem is elsewhere."
