@@ -215,7 +215,7 @@ resource "aws_security_group" "EC2-webhosting" {
 
 resource "aws_key_pair" "website-key" {
   key_name   = "website"
-  public_key = file("website.pub")
+  public_key = file("./website.pub")
 }
 
 ##################################################################### EC2 ########################################################################
@@ -229,7 +229,7 @@ resource "aws_instance" "example_instance" {
   vpc_security_group_ids      = [aws_security_group.EC2-webhosting.id]
 
   provisioner "file" {
-    source      = "web.sh"
+    source      = "./web.sh"
     destination = "/tmp/web.sh"
   }
 
@@ -243,7 +243,7 @@ resource "aws_instance" "example_instance" {
 
   connection {
     user        = "ec2-user"
-    private_key = file("website")
+    private_key = file("./website")
     host        = self.public_ip
   }
 
