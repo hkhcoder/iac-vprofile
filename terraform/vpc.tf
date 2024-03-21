@@ -229,7 +229,7 @@ resource "aws_instance" "example_instance" {
   vpc_security_group_ids      = [aws_security_group.EC2-webhosting.id]
 
   provisioner "file" {
-    source       = "web.sh"
+    source      = "web.sh"
     destination = "/tmp/web.sh"
   }
 
