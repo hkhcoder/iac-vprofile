@@ -19,6 +19,8 @@ env:
  # S3 bucket for the Terraform state
  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE}}
  AWS_REGION: us-east-2
+ PUB_KEY: ${{ secrets.PUB_KEY }}
+ PRIVATE_KEY : ${{ secrets.PRIVATE_KEY }}
 
 jobs:
    terraform:
@@ -30,6 +32,22 @@ jobs:
          working-directory: ./terraform
 
      steps:
+      
+       - name: create varibale file
+         run : |
+           cat <<EOF > variable.tf
+           variable "PUB_KEY" {
+           description = "PUB_KEY"
+           type        = string
+           default     = "$PUB_KEY"         
+           }
+
+           variable "PRIVATE_KEY" {
+           description = "PRIVATE_KEY"
+           type        = string
+           default     = "$PRIVATE_KEY"         
+           }
+
        - name: Checkout source code 
          uses: actions/checkout@v4
 
