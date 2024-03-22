@@ -61,7 +61,7 @@ jobs:
 
        - name: Terraform validate
          id: validate
-         run: terraform validate -var-file=example.tfvars
+         run: terraform validate -var-file=variable.tfvars
 
        - name: Terraform plan
          id: plan
