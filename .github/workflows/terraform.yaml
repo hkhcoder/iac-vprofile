@@ -47,19 +47,19 @@ jobs:
            variable "PUB_KEY" {
            description = "PUB_KEY"
            type        = string
-           default     = "$PUB_KEY"         
+           default     = $PUB_KEY      
            }
 
            variable "PRIVATE_KEY" {
            description = "PRIVATE_KEY"
            type        = string
-           default     = "$PRIVATE_KEY"         
+           default     = $PRIVATE_KEY      
            }
            EOF
       
        - name: Show File Contents
          run: cat variable.tf
-         
+
        - name: Terraform init
          id: init
          run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
