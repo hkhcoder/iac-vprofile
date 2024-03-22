@@ -44,12 +44,8 @@ jobs:
        - name: create varibale file
          run : |
            cat <<EOF > variable.tfvars
-           PUB_KEY = <<-EOF
-           $PUB_KEY
-           EOF
-           PRIVATE_KEY = <<-EOF
-           $PRIVATE_KEY
-           EOF
+           PUB_KEY = $PUB_KEY
+           PRIVATE_KEY = $PRIVATE_KEY
            EOF
       
        - name: Show File Contents
