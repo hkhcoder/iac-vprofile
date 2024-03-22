@@ -61,7 +61,7 @@ jobs:
 
        - name: Terraform validate
          id: validate
-         run: terraform validate -var-file=variable.tfvars
+         run: terraform validate -var 'PUB_KEY=./variable.tfvars'
 
        - name: Terraform plan
          id: plan
