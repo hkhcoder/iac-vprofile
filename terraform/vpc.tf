@@ -211,13 +211,20 @@ resource "aws_security_group" "EC2-webhosting" {
   }
 }
 
+################################################################## Key_pair #####################################################################
+
+resource "aws_key_pair" "website-key" {
+  key_name   = "website"
+  public_key = var.PUB_KEY
+}
+
 ##################################################################### EC2 ########################################################################
 
 resource "aws_instance" "example_instance" {
   ami                         = "ami-0e0bf53f6def86294" # Update with your desired AMI ID
   instance_type               = "t2.micro"              # Update with your desired instance type
   subnet_id                   = aws_subnet.public1.id
-  key_name                    = aws_key_pair.var.PUB_KEY.key_name
+  key_name                    = aws_key_pair.website-key.key_name
   associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.EC2-webhosting.id]
 

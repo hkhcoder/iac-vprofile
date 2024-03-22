@@ -45,15 +45,15 @@ jobs:
          run : |
            cat <<EOF > variables.tf
            variable "PUB_KEY" {
-           description = "PUB_KEY"
-           type        = string
-           default     = "$PUB_KEY"
+            description = "PUB_KEY"
+            type        = string
+            default     = "$PUB_KEY"
            }
 
            variable "PRIVATE_KEY" {
-           description = "PRIVATE_KEY"
-           type        = string
-           default     = "$PRIVATE_KEY"
+             description = "PRIVATE_KEY"
+             type        = string
+             default     = "$PRIVATE_KEY"
            }
            EOF
       
