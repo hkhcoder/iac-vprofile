@@ -47,17 +47,13 @@ jobs:
            variable "PUB_KEY" {
            description = "PUB_KEY"
            type        = string
-           default     = <<EOF >
-           $PUB_KEY
-           EOF
+           default     = "$PUB_KEY"
            }
 
            variable "PRIVATE_KEY" {
            description = "PRIVATE_KEY"
            type        = string
-           default     = <<EOF >
-           $PRIVATE_KEY
-           EOF
+           default     = "$PRIVATE_KEY"
            }
            EOF
       
