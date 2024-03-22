@@ -65,6 +65,9 @@ jobs:
          run: terraform init -backend-config="bucket=$BUCKET_TF_STATE"
 
        - name: Terraform format
+         run: terraform fmt
+
+       - name: Terraform format check
          id: fmt
          run: terraform fmt -check
 
