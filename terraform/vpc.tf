@@ -215,7 +215,7 @@ resource "aws_security_group" "EC2-webhosting" {
 
 resource "aws_key_pair" "website-key" {
   key_name   = "website"
-  public_key = file($var.PUB_KEY)
+  public_key = file(${var.PUB_KEY})
 }
 
 ##################################################################### EC2 ########################################################################
@@ -243,7 +243,7 @@ resource "aws_instance" "example_instance" {
 
   connection {
     user        = "ec2-user"
-    private_key = file($var.PRIVATE_KEY)
+    private_key = file(${var.PRIVATE_KEY})
     host        = self.public_ip
   }
 
