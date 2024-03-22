@@ -49,7 +49,7 @@ jobs:
            EOF
       
        - name: Show File Contents
-         run: cat variable.tf
+         run: cat variable.tfvars
 
        - name: Terraform init
          id: init
