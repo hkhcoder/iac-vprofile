@@ -246,5 +246,4 @@ resource "aws_instance" "example_instance" {
     private_key = var.PRIVATE_KEY
     host        = self.public_ip
   }
-
 }
