@@ -4,13 +4,13 @@ on:
     branches:
       - main
       - stage
-    paths:  
-      - ./**
+    # paths:  
+    #   - terraform/**
   pull_request:
     branches:
       - main
-    paths:
-      - ./**
+    # paths:
+    #   - terraform/**
 
 env:
  # Credentials for deployment to AWS
