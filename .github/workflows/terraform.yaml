@@ -48,6 +48,7 @@ jobs:
            default     = "$PRIVATE_KEY"         
            }
            EOF
+         shell: /bin/bash
 
        - name: Checkout source code 
          uses: actions/checkout@v4
