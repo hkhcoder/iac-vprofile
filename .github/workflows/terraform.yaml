@@ -5,12 +5,12 @@ on:
       - main
       - stage
     paths:  
-      - terraform/**
+      - ./**
   pull_request:
     branches:
       - main
     paths:
-      - terraform/**
+      - ./**
 
 env:
  # Credentials for deployment to AWS
@@ -61,7 +61,7 @@ jobs:
 
        - name: Terraform validate
          id: validate
-         run: terraform validate -var 'PUB_KEY=./variable.tfvars'
+         run: terraform validate
 
        - name: Terraform plan
          id: plan
