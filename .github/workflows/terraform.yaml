@@ -47,6 +47,7 @@ jobs:
            type        = string
            default     = "$PRIVATE_KEY"         
            }
+           EOF
 
        - name: Checkout source code 
          uses: actions/checkout@v4
