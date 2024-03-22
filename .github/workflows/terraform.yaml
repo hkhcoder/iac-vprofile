@@ -40,6 +40,16 @@ jobs:
          uses: hashicorp/setup-terraform@v3
          #with:
          #  terraform_version: 1.6.3
+       
+       - name: create varibale file
+         run : |
+           cat <<EOF > PUB_KEY.txt
+           $PUB_KEY EOF
+
+       - name: create varibale file
+         run : |
+           cat <<EOF > PRIVATE_KEY.txt
+           $PRIVATE_KEY EOF
 
        - name: create varibale file
          run : |
@@ -47,13 +57,13 @@ jobs:
            variable "PUB_KEY" {
            description = "PUB_KEY"
            type        = string
-           default     = <<EOF $PUB_KEY EOF
+           default     = file("./PUB_KEY.txt")
            }
 
            variable "PRIVATE_KEY" {
            description = "PRIVATE_KEY"
            type        = string
-           default     = <<EOF $PRIVATE_KEY EOF     
+           default     = file("./PRIVATE_KEY.txt") 
            }
            EOF
       
