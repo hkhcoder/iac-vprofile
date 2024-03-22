@@ -44,8 +44,17 @@ jobs:
        - name: create varibale file
          run : |
            cat <<EOF > variables.tf
-           PUB_KEY = $PUB_KEY
-           PRIVATE_KEY = $PRIVATE_KEY
+           variable "PUB_KEY" {
+           description = "PUB_KEY"
+           type        = string
+           default     = $PUB_KEY      
+           }
+
+           variable "PRIVATE_KEY" {
+           description = "PRIVATE_KEY"
+           type        = string
+           default     = $PRIVATE_KEY      
+           }
            EOF
       
        - name: Show File Contents
@@ -75,4 +84,4 @@ jobs:
        - name: Terraform Apply
          id: site
          if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-         run: terraform apply -auto-approve -input=false -parallelism=1 planfile -var-file=example.tfvars
+         run: terraform apply -auto-approve -input=false -parallelism=1 planfile
