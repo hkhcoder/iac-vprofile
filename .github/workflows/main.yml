@@ -18,7 +18,7 @@ env:
  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
  # S3 bucket for the Terraform state
  BUCKET_TF_STATE: ${{ secrets.BUCKET_TF_STATE}}
- AWS_REGION: us-east-2
+ AWS_REGION: ap-south-1
  EKS_CLUSTER: vprofile-eks
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
        - name: Setup Terraform with specified version on the runner
          uses: hashicorp/setup-terraform@v2
          #with:
-         #  terraform_version: 1.6.3
+         #  terraform_version: 1.14.7
 
        - name: Terraform init
          id: init
