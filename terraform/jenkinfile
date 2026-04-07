@@ -1,0 +1,120 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
+    environment {
+        AWS_REGION  = 'us-east-1'
+        EKS_CLUSTER = 'terraform-eks'
+        TF_DIR      = 'terraform'
+        TF_IMAGE    = 'hashicorp/terraform:1.14.8'
+    }
+
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Fmt / Init / Validate / Plan') {
+            agent {
+                docker {
+                    image "${TF_IMAGE}"
+                    reuseNode true
+                    args "--entrypoint='' -u root:root"
+                }
+            }
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awsgitop'],
+                    string(credentialsId: 'BUCKET_TF_STATE', variable: 'BUCKET_TF_STATE')
+                ]) {
+                    dir("${TF_DIR}") {
+                        sh '''
+                            terraform version
+                            terraform fmt -check
+                            terraform init -backend-config="bucket=${BUCKET_TF_STATE}"
+                            terraform validate
+                            terraform plan -no-color -input=false -out=planfile
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == 'main' || env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main') {
+                        docker.image("${TF_IMAGE}").inside("--entrypoint='' -u root:root") {
+                            withCredentials([
+                                [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awscreds'],
+                                string(credentialsId: 'BUCKET_TF_STATE', variable: 'BUCKET_TF_STATE')
+                            ]) {
+                                dir("${TF_DIR}") {
+                                    sh '''
+                                        terraform apply -auto-approve -input=false -parallelism=1 planfile
+                                    '''
+                                }
+                            }
+                        }
+                    } else {
+                        echo "Not main branch, skipping terraform apply."
+                    }
+                }
+            }
+        }
+
+        stage('Configure kubectl for EKS') {
+            when {
+                expression {
+                    env.BRANCH_NAME == 'main' || env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main'
+                }
+            }
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awscreds']
+                ]) {
+                    sh '''
+                        aws --version
+                        kubectl version --client
+                        aws eks update-kubeconfig --region ${AWS_REGION} --name ${EKS_CLUSTER}
+                    '''
+                }
+            }
+        }
+
+        stage('Install ingress-nginx') {
+            when {
+                expression {
+                    env.BRANCH_NAME == 'main' || env.GIT_BRANCH == 'origin/main' || env.GIT_BRANCH == 'main'
+                }
+            }
+            steps {
+                sh '''
+                    if kubectl get ns ingress-nginx >/dev/null 2>&1; then
+                      echo "ingress-nginx already installed, skipping"
+                    else
+                      kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/aws/deploy.yaml
+                    fi
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform EKS pipeline completed successfully.'
+        }
+        failure {
+            echo 'Terraform EKS pipeline failed.'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
