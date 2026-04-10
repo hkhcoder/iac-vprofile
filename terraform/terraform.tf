@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.25.0"
+      version = "~> 5.40.0"
     }
 
     random = {
@@ -27,7 +27,7 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "gitopsterrastate"
+    bucket = "vprofileactions2920"
     key    = "terraform.tfstate"
     region = "us-east-2"
   }
@@ -36,4 +36,4 @@ terraform {
 }
 ##
 ##
-##
+####
